@@ -9,6 +9,7 @@ Materials for this NICAR 2023 session.
 ### Resources
 
 * [Sports DataVerse](https://sportsdataverse.org/)
+* [Sports Data Analysis and Visualization](https://www.thescoop.org/sports/)
 * [Using R Packages to get data](https://www.thescoop.org/sports/usingpackages.html)
 
 ### Examples
