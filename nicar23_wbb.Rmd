@@ -1,0 +1,186 @@
+
+
+
+Some of the best sports data visualizations start with a provocative question. How about this one: Who really belongs in the debate over which women's college basketball team is best?
+
+We'll make a bubble chart for this, which is both satisfying and hard. The reason they are hard is not because of the code, or the complexity or anything like that. They’re a scatterplot with magnitude added – the size of the dot in the scatterplot has meaning. The hard part is seeing when a bubble chart works and when it doesn’t.
+
+First, we'll load the tidyverse.
+
+```{r}
+library(tidyverse)
+```
+
+The data here is contained in two CSV files; one with game boxes and another with team information. We'll join those two together and then use a subset of columns.
+
+```{r}
+
+game_boxes_with_opp <- read_csv("https://raw.githubusercontent.com/dwillis/hhs-snapshots/main/data/team_gameboxes_opp_20230301.csv")
+
+team_seasons_2023 <- read_csv("https://raw.githubusercontent.com/dwillis/hhs-snapshots/main/data/team_seasons.csv") %>% filter(end_year == 2023)
+
+game_boxes_with_teams <- game_boxes_with_opp %>% 
+  inner_join(team_seasons_2023) %>% 
+  select(location_name, ncaa_conference, ncaa_division, win, fga, fgm, opp_fga, opp_fgm)
+```
+
+Now we need some metrics to compare just the Division I teams.
+
+```{r}
+shooting <- game_boxes_with_teams %>% 
+  filter(ncaa_division == 1) %>% 
+  group_by(location_name, ncaa_conference) %>% 
+  summarize(
+    total_games = n(),
+    total_wins = sum(win),
+    total_fga = sum(fga),
+    total_fgm = sum(fgm),
+    opp_fga = sum(opp_fga),
+    opp_fgm = sum(opp_fgm)
+  ) %>% 
+  mutate(
+    offensive_shooting = (total_fgm/total_fga),
+    defensive_shooting = (opp_fgm/opp_fga)
+  )
+
+
+```
+
+
+Let's make a scatterplot:
+
+```{r}
+ggplot() + 
+  geom_point(
+    data=shooting, aes(x=offensive_shooting, y=defensive_shooting)
+    )
+```
+
+Not entirely random, but there's a pretty wide distribution of the 300+ Division I teams here. In this case, that’s not that bad because we’re not claiming a relationship. We’re saying the location on the chart has meaning. So, do teams on the bottom right – good offense, good defense – win more games?
+
+Let’s add the size element using our total wins.
+
+```{r}
+ggplot() + 
+  geom_point(
+    data=shooting, aes(x=offensive_shooting, y=defensive_shooting, size=total_wins)
+    )
+```
+
+What does this chart tell you? We can see a general pattern that there are more big dots on the bottom right than the upper left. But we can make this more readable by adding an alpha element outside the aesthetic – alpha in this case is transparency – and we can manually change the size of the dots by adding scale_size and a range.
+
+```{r}
+ggplot() + 
+  geom_point(
+    data=shooting, 
+    aes(x=offensive_shooting, y=defensive_shooting, size=total_wins),
+    alpha = .3) + 
+  scale_size(range = c(3, 8), name="Wins")
+```
+
+Ok, let's focus on the Big Ten, which as we *all* know is the best conference for women's basketball:
+
+```{r}
+bigten <- shooting %>% filter(ncaa_conference == "Big Ten")
+```
+
+```{r}
+ggplot() + 
+  geom_point(
+    data=shooting, 
+    aes(x=offensive_shooting, y=defensive_shooting, size=total_wins),
+    color="grey", 
+    alpha=.5) + 
+  geom_point(
+    data=bigten, 
+    aes(x=offensive_shooting, y=defensive_shooting, size=total_wins),
+    color="red")
+```
+
+Let’s add some things to this chart to help us out. First, let’s add lines that show us the average of all teams for those two metrics. So first, we need to calculate those. Because I have grouped data, it’s going to require me to ungroup it so I can get just the total average of those two numbers.
+
+```{r}
+shooting %>% 
+  ungroup() %>% 
+  summarise(
+    offense = mean(offensive_shooting), 
+    defense = mean(defensive_shooting)
+    )
+```
+
+Now we can use those averages to add two more geoms – geom_vline and geom_hline, for vertical lines and horizontal lines.
+
+```{r}
+ggplot() + 
+  geom_point(
+    data=shooting, 
+    aes(x=offensive_shooting, y=defensive_shooting, size=total_wins), 
+    color="grey", 
+    alpha=.5) + 
+  geom_point(
+    data=bigten, 
+    aes(x=offensive_shooting, y=defensive_shooting, size=total_wins), 
+    color="red") + 
+  geom_vline(xintercept = 0.4060908) + 
+  geom_hline(yintercept = 0.4019405)
+```
+
+Now, let’s add another new geom for us, using a new library called ggrepel, which will help us label the dots without overwriting other labels. So we’ll have to install that in the console:
+
+```{r}
+install.packages("ggrepel")
+library(ggrepel)
+```
+
+And with that, we can add labels to the dots. The geom_text_repel is pretty much the exact same thing as your Big Ten geom point, but instead of a size, you include a label.
+
+```{r}
+ggplot() + 
+  geom_point(
+    data=shooting, 
+    aes(x=offensive_shooting, y=defensive_shooting, size=total_wins), 
+    color="grey", 
+    alpha=.5) + 
+  geom_point(
+    data=bigten, 
+    aes(x=offensive_shooting, y=defensive_shooting, size=total_wins), 
+    color="red") + 
+  geom_vline(xintercept = 0.4060908) + 
+  geom_hline(yintercept = 0.4019405) +
+  geom_text_repel(
+    data=bigten, 
+    aes(x=offensive_shooting, y=defensive_shooting, label=location_name)
+  )
+```
+
+Iowa gets a lot of credit for its offense, but it's also a pretty good defensive team! Last Sunday's Iowa-Indiana came down to a last-second buzzer-beating shot, which went in to seal the win for the Hawkeyes.
+
+All that’s left is some labels and some finishing touches.
+
+
+```{r}
+ggplot() + 
+  geom_point(
+    data=shooting, 
+    aes(x=offensive_shooting, y=defensive_shooting, size=total_wins), 
+    color="grey", 
+    alpha=.5) + 
+  geom_point(
+    data=bigten, 
+    aes(x=offensive_shooting, y=defensive_shooting, size=total_wins), 
+    color="red") + 
+  geom_vline(xintercept = 0.4060908) + 
+  geom_hline(yintercept = 0.4019405) +
+  geom_text_repel(
+    data=bigten, 
+    aes(x=offensive_shooting, y=defensive_shooting, label=location_name)
+  )+
+  labs(title="Iowa is the best shooting team in the Big Ten", subtitle="But the Hawkeyes also are among the league's better defensive teams, too.", caption="Source: NCAA | By Derek Willis")  + theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10), 
+    panel.grid.minor = element_blank()
+    )
+```
+
