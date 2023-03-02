@@ -21,9 +21,9 @@ library(tidyverse)
 The data here is contained in two CSV files; one with game boxes and another with team information. We'll join those two together and then use a subset of columns.
 
 ```{r}
-game_boxes_with_opp <- read_csv("https://raw.githubusercontent.com/dwillis/hhs-snapshots/main/data/team_gameboxes_opp_20230301.csv")
+game_boxes_with_opp <- read_csv("team_gameboxes_opp_20230301.csv")
 
-team_seasons_2023 <- read_csv("https://raw.githubusercontent.com/dwillis/hhs-snapshots/main/data/team_seasons.csv") %>% filter(end_year == 2023)
+team_seasons_2023 <- read_csv("team_seasons.csv") %>% filter(end_year == 2023)
 
 game_boxes_with_teams <- game_boxes_with_opp %>% 
   inner_join(team_seasons_2023) %>% 
