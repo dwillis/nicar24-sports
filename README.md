@@ -4,7 +4,8 @@ Materials for this NICAR 2023 session.
 
 * Matt Waite, University of Nebraska
 * Derek Willis, University of Maryland
-* MaryJo Webster, Star Tribune
+* Rina Torchinsky, University of Maryland
+* MaryJo Webster, Star Tribune (in absentia)
 
 ### Resources
 
