@@ -5,7 +5,6 @@ Materials for this NICAR 2023 session.
 * Matt Waite, University of Nebraska
 * Derek Willis, University of Maryland
 * [Sapna Bansil](https://cnsmaryland.org/youth-football/), University of Maryland
-* MaryJo Webster, Star Tribune
 
 ### Resources
 
