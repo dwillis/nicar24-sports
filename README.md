@@ -46,3 +46,4 @@ passing_next_gen <-  load_nextgen_stats(
 Most of this is just high-level stuff taken from various websites, but there are two pieces where we pulled data from an API using R. The main one is the bubble chart that shows how Jefferson led the team on offensive yards (There is a nifty package called "[packcircles](mimestream://messagethread/p448483/message/p511829?UUID=52FF0A60-4ECD-493C-B780-C97901E30DF2&loadRemoteResources#https://r-graph-gallery.com/305-basic-circle-packing-with-one-level.html)" that works with plotly package to make a bubble chart. The one in our story was made with other technology, though).  I also pulled the receiving yards per game data from the espnscrapR package, play by play data.
 
 * [For Players, Scoring Matters. But Shouldn’t Other Things Too?](https://sash-wat.github.io/JOUR479XSite/_site/posts/soccer-analysis/)
+* [For WVU, There’s No Place Like Home](https://herhoopstats.substack.com/p/for-wvu-theres-no-place-like-home)
