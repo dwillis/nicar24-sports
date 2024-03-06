@@ -1,0 +1,124 @@
+# Bringing Data Analysis to the Sports Section
+
+## NICAR 2024
+
+#### Matt Waite, University of Nebraska
+
+#### Derek Willis, University of Maryland
+
+#### <https://github.com/dwillis/nicar24-sports>
+
+Some of the best sports data stories start with a good question. How about this one: which teams benefit the most from home-court officiating?
+
+First, we'll load the tidyverse.
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+logs <- read_csv("logs1824.csv")
+
+logs <- logs |> mutate(foul_diff = TeamPersonalFouls-OpponentPersonalFouls, steal_diff = TeamSteals- OpponentSteals, turnover_diff = TeamTurnovers- OpponentTurnovers)
+```
+
+
+```{r}
+
+team_fouls_location_season <- logs |> 
+  filter(!is.na(TeamPersonalFouls)) |> 
+  group_by(Conference, Team, Season, HomeAway) |> 
+  summarize(avg_fouls = mean(TeamPersonalFouls)) |> 
+  pivot_wider(names_from = HomeAway, values_from = avg_fouls) |> 
+  rename(Home = `NA`, Away = `@`, Neutral = N) |> 
+  mutate(Diff = Home-Away)
+
+conference_fouls_location_season <- logs |> 
+  filter(!is.na(TeamPersonalFouls)) |> 
+  group_by(Conference, Season, HomeAway) |> 
+  summarize(avg_fouls = mean(TeamPersonalFouls)) |> 
+  pivot_wider(names_from = HomeAway, values_from = avg_fouls) |> 
+  rename(Home = `NA`, Away = `@`, Neutral = N) |> 
+  mutate(Diff = Home-Away)
+
+team_fouls_location <- logs |> 
+  filter(!is.na(TeamPersonalFouls)) |> 
+  group_by(Conference, Team, HomeAway) |> 
+  summarize(avg_fouls = mean(TeamPersonalFouls)) |> 
+  pivot_wider(names_from = HomeAway, values_from = avg_fouls) |> 
+  rename(Home = `NA`, Away = `@`, Neutral = N) |> 
+  mutate(Diff = Home-Away)
+
+
+conference_fouls_location <- logs |> 
+  filter(!is.na(TeamPersonalFouls)) |> 
+  group_by(Conference, HomeAway) |> 
+  summarize(avg_fouls = mean(TeamPersonalFouls)) |> 
+  pivot_wider(names_from = HomeAway, values_from = avg_fouls) |> 
+  rename(Home = `NA`, Away = `@`, Neutral = N) |> 
+  mutate(Diff = Home-Away)
+```
+## Averages for all teams
+
+```{r}
+logs |> filter(!is.na(TeamPersonalFouls)) |> group_by(HomeAway) |> summarize(avg_fouls = mean(TeamPersonalFouls))
+```
+
+```{r}
+team_fouldiff_location_season <- logs |> 
+  filter(!is.na(foul_diff)) |> 
+  group_by(Conference, Team, Season, HomeAway) |> 
+  summarize(avg_fouls = mean(foul_diff)) |> 
+  pivot_wider(names_from = HomeAway, values_from = avg_fouls) |> 
+  rename(Home = `NA`, Away = `@`, Neutral = N) |> 
+  mutate(Diff = Home-Away)
+
+conference_fouldiff_location_season <- logs |> 
+  filter(!is.na(foul_diff)) |> 
+  group_by(Conference, Season, HomeAway) |> 
+  summarize(avg_fouls = mean(foul_diff)) |> 
+  pivot_wider(names_from = HomeAway, values_from = avg_fouls) |> 
+  rename(Home = `NA`, Away = `@`, Neutral = N) |> 
+  mutate(Diff = Home-Away)
+
+team_fouldiff_location <- logs |> 
+  filter(!is.na(foul_diff)) |> 
+  group_by(Team, HomeAway) |> 
+  summarize(avg_fouls = mean(foul_diff)) |> 
+  pivot_wider(names_from = HomeAway, values_from = avg_fouls) |> 
+  rename(Home = `NA`, Away = `@`, Neutral = N) |> 
+  mutate(Diff = Home-Away)
+
+
+conference_fouldiff_location <- logs |> 
+  filter(!is.na(foul_diff)) |> 
+  group_by(Conference, HomeAway) |> 
+  summarize(avg_fouls = mean(foul_diff)) |> 
+  pivot_wider(names_from = HomeAway, values_from = avg_fouls) |> 
+  rename(Home = `NA`, Away = `@`, Neutral = N) |> 
+  mutate(Diff = Home-Away)
+```
+### How many teams have averaged fewer fouls at home and away over the past seven seasons?
+
+```{r}
+team_fouldiff_location_season |> filter(Home < 0, Away < 0) |> group_by(Team) |> summarize(count = n()) |> arrange(desc(count))
+```
+
+### Teams that are good at this - are they alike? Yes, except South Carolina and Western Illinois.
+
+```{r}
+team_fouldiff_location |> 
+  filter(Away < 0, Home < 0) |> 
+  select(Team, Away, Home, Diff) |> 
+  arrange(Diff)
+```
+
+### Drilling down into game-level data for West Virginia
+
+
+```{r}
+logs |> filter(Team == "West Virginia", !is.na(W_L), is.na(HomeAway)) |>  select(Season, Date, Opponent, W_L, foul_diff, steal_diff, turnover_diff) |>  arrange(desc(Date)) |> distinct()
+```
+
+
+
