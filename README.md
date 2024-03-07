@@ -1,6 +1,6 @@
 # Bringing data journalism to the sports section
 
-Materials for this NICAR 2023 session.
+Materials for this NICAR 2024 session.
 
 * Matt Waite, University of Nebraska
 * Derek Willis, University of Maryland
