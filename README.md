@@ -1,5 +1,7 @@
 # Bringing data journalism to the sports section
 
+[THIS REPO](https://github.com/dwillis/nicar24-sports)
+
 Materials for this NICAR 2024 session.
 
 * Matt Waite, University of Nebraska
